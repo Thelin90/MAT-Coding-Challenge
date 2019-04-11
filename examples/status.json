@@ -1,6 +1,6 @@
 {
-  "timestamp": 1541693114862,
-  "carIndex": 2,
-  "type": "POSITION",
-  "value": 1
+  "timestamp": 15416931148362,
+  "carIndex": 3,
+  "type": "SPEED",
+  "value": 1244
 }

@@ -1,12 +1,21 @@
-version: "3"
-
+version: '3.0'
 services:
+        # MAT-Coding-Challenge-App
+        mat_app:
+                container_name: mat-coding-challenge-app
+                build:
+                        context: .
+                        dockerfile: Dockerfile
+                networks:
+                  - mat-coding-challenge_default
         # MQTT broker
         broker:
                 container_name: broker
                 image: toke/mosquitto
                 ports:
-                        - "127.0.0.1:1883:1883/tcp"
+                        - '127.0.0.1:1883:1883/tcp'
+                networks:
+                  - mat-coding-challenge_default
 
         # GPS coords source
         source_gps:
@@ -15,11 +24,14 @@ services:
                 links:
                         - broker
                 env_file:
-                        - ./source_gps.env
-                        - ./mqtt.env
-                        - ./cars.env
+                        - tools/env/source_gps.env
+                        - tools/env/mqtt.env
+                        - tools/env/cars.env
                 ports:
-                        - "127.0.0.1:8081:8080/tcp"
+                        - '127.0.0.1:8081:8080/tcp'
+                networks:
+                  - mat-coding-challenge_default
+
 
         # Write to websocket
         mqtt_to_websocket:
@@ -28,10 +40,11 @@ services:
                 links:
                         - broker
                 env_file:
-                        - ./mqtt.env
+                        - tools/env/mqtt.env
                 ports:
-                        - "127.0.0.1:8080:8080/tcp"
-
+                        - '127.0.0.1:8080:8080/tcp'
+                networks:
+                  - mat-coding-challenge_default
 
         # Webapp
         webapp:
@@ -40,4 +53,9 @@ services:
                 links:
                         - mqtt_to_websocket
                 ports:
-                        - "127.0.0.1:8084:8084/tcp"
+                        - '127.0.0.1:8084:8084/tcp'
+                networks:
+                  - mat-coding-challenge_default
+
+networks:
+  mat-coding-challenge_default:

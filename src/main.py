@@ -1,6 +1,9 @@
-from src.suscribe import read_suscribed_topics
+"""
+Script to start the suscribe and publish process from mqtt topics
+"""
+from src.read_subscribed_topics import read_suscribed_topics
 
-from src.helper import \
+from src.helpers.helper import \
     write_raw_data, \
     DEFAULT_SUSCRIBE_TOPIC, \
     Broker, \
@@ -23,23 +26,14 @@ def on_connect(mqtt_client, userdata, flags, rc):
     :param flags:
     :param rc:
     """
+
     if rc == 0:
+        logging.info('Connection successful')
         mqtt_client.subscribe(DEFAULT_SUSCRIBE_TOPIC)
         global connected
         connected = True
     else:
         logging.warn('Connection failed')
-
-
-def on_publish(mqtt_client, userdata, msg):
-    """
-
-    :param mqtt_client:
-    :param userdata:
-    :param msg:
-    :return:
-    """
-    #logging.info('on_publish')
 
 
 def on_message(mqtt_client, userdata, msg):
@@ -52,13 +46,15 @@ def on_message(mqtt_client, userdata, msg):
     :param msg: the message containing the data
     :return:
     """
-    #logging.info('on_message')
-    write_raw_data(msg)
+    if not mqtt_client == client:
+        logging.warn('on_message failed')
+        raise ValueError(mqtt_client)
+    else:
+        write_raw_data(msg)
 
 
 client = mqtt.Client()
 client.on_connect = on_connect
-client.on_publish = on_publish
 client.on_message = on_message
 client.connect(Broker, DEFAULT_PORT, TIME_ALIVE)
 client.loop_start()
@@ -70,7 +66,9 @@ while connected is False:
 
 try:
     while True:
+        time.sleep(0.01)
         read_suscribed_topics(client)
+        time.sleep(0.01)
 
 except KeyboardInterrupt:
     client.disconnect()

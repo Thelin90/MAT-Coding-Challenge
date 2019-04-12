@@ -1,17 +1,18 @@
-from src.helper import \
+from src.helpers.helper import \
     TS_INDEX, \
     CAR_INDEX
 
 import json
 
 
-def publish_events_topic(msg, client):
+def publish_events_topic(msg, ts, client):
     client.publish(
         'events',
         json.dumps({
-            'timestamp': msg[TS_INDEX],
-            'text': msg['text']
-        })
+            'timestamp': ts,
+            'text': msg
+        }),
+        0
     )
 
 

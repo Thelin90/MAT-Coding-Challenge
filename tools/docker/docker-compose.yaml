@@ -3,11 +3,17 @@ services:
         # MAT-Coding-Challenge-App
         mat_app:
                 container_name: mat-coding-challenge-app
+                image: mat_app
                 build:
-                        context: .
-                        dockerfile: Dockerfile
+                        context: ../../
+                        dockerfile: tools/docker/Dockerfile
+                depends_on:
+                  - broker
+                  - source_gps
+                  - mqtt_to_websocket
+                  - webapp
                 networks:
-                  - mat-coding-challenge_default
+                        - mat-coding-challenge_default
         # MQTT broker
         broker:
                 container_name: broker
@@ -24,9 +30,9 @@ services:
                 links:
                         - broker
                 env_file:
-                        - tools/env/source_gps.env
-                        - tools/env/mqtt.env
-                        - tools/env/cars.env
+                        - ../env/source_gps.env
+                        - ../env/mqtt.env
+                        - ../env/cars.env
                 ports:
                         - '127.0.0.1:8081:8080/tcp'
                 networks:
@@ -40,7 +46,7 @@ services:
                 links:
                         - broker
                 env_file:
-                        - tools/env/mqtt.env
+                        - ../env/mqtt.env
                 ports:
                         - '127.0.0.1:8080:8080/tcp'
                 networks:
@@ -59,3 +65,4 @@ services:
 
 networks:
   mat-coding-challenge_default:
+          driver: bridge

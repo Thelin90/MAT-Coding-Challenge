@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 
-class TestTransform_topic_data(TestCase):
+class TestHelperClass(TestCase):
 
     def test_transform_topic_data(self):
         pass
@@ -25,4 +25,13 @@ class TestTransform_topic_data(TestCase):
         pass
 
     def test_find_velocity_mph(self):
+        pass
+
+    def test_extract_gps_data(self):
+        pass
+
+    def test_extract_timestamp(self):
+        pass
+
+    def test_find_car_position(self):
         pass

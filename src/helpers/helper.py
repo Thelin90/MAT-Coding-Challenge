@@ -1,11 +1,11 @@
-from collections import deque, Counter
+from collections import deque
 from haversine import haversine
 
 import json
 import datetime as dt
 import os
 
-DEFAULT_SUSCRIBE_TOPIC = 'carCoordinates'
+DEFAULT_SUBSCRIBED_TOPIC = 'carCoordinates'
 POS = 'POSITION'
 SPEED = 'SPEED'
 TS_INDEX = 'timestamp'
@@ -22,6 +22,18 @@ MPH_CONST = 2.23693629
 M_CONST = 1000
 
 car_long_lat_data = []
+
+
+def write_file(file, data, path):
+    """Function to write data to file for each car from subscribed topic
+    in regards to position and speed
+    :param file:
+    :param data:
+    :param path:
+    :return:
+    """
+    with open(os.path.join(path, file), 'a') as topic:
+        topic.writelines(data)
 
 
 def extract_gps_data(data):
@@ -49,7 +61,7 @@ def transform_topic_data(car):
     :param car:
     :return:
     """
-    topic_filename = f'{car}' + '_' + DEFAULT_SUSCRIBE_TOPIC + '.txt'
+    topic_filename = f'{car}' + '_' + DEFAULT_SUBSCRIBED_TOPIC + '.txt'
 
     with open(os.path.join(DATA_PATH, topic_filename), 'r') as raw_data_file:
         raw_data_carstatus = deque(raw_data_file, maxlen=2)
@@ -62,7 +74,9 @@ def transform_topic_data(car):
             car_positions = find_positions()
 
             topic_carstatus_position = f'{car}' + '_carStatus_position.txt'
-            write_topic(
+
+            # write position
+            write_file(
                 topic_carstatus_position,
                 create_carstatus_topic_data(t1, car, POS, car_positions[car][1] + 1),
                 DATA_CARSTATUS_PATH
@@ -76,7 +90,7 @@ def transform_topic_data(car):
         topic_carstatus_speed = f'{car}' + '_carStatus_speed.txt'
 
         # write speed
-        write_topic(
+        write_file(
             topic_carstatus_speed,
             create_carstatus_topic_data(t1, car, SPEED, curr_speed),
             DATA_CARSTATUS_PATH
@@ -102,35 +116,6 @@ def create_carstatus_topic_data(ts, car, actual_type, value):
             "value": value
         }
     ) + '\n'
-
-
-def write_raw_data(msg):
-    if msg.topic == DEFAULT_SUSCRIBE_TOPIC:
-        car = json.loads(
-            msg.payload.decode()
-        )[CAR_INDEX]
-
-        raw_data = f'{car}' + '_' + DEFAULT_SUSCRIBE_TOPIC + '.txt'
-
-        # in a real application this would have been perhaps an S3 bucket writing
-        # instead! (Minio locally) but let's keep it simple!
-        with open(os.path.join(DATA_PATH, raw_data), 'a') as raw_data_file:
-            raw_data_file.writelines(msg.payload.decode() + '\n')
-
-        transform_topic_data(car)
-
-
-def write_topic(file, data, path):
-    """
-
-    :param file:
-    :param data:
-    :param path:
-    :return:
-    """
-    # running out of time so just sending events
-    with open(os.path.join(path, file), 'a') as topic:
-        topic.writelines(data)
 
 
 def find_car_position(row, pos0, pos1):
@@ -169,8 +154,6 @@ def find_positions():
                 tmp[j] = haversine(d0, d1) * 1000
 
         sorted_leading_board = sorted(((v, i) for i, v in enumerate(tmp)), reverse=False)
-
-    print(sorted_leading_board)
 
     return sorted_leading_board
 

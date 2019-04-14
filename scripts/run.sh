@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# install requirements file
-python3.6 -m pip install -r scripts/requirements.txt
+python3 -m unittest discover tests/ -v
 
 python3 src/main.py

@@ -12,8 +12,7 @@ services:
                   - source_gps
                   - mqtt_to_websocket
                   - webapp
-                networks:
-                        - mat-coding-challenge_default
+                network_mode: "host"
         # MQTT broker
         broker:
                 container_name: broker
@@ -65,4 +64,3 @@ services:
 
 networks:
   mat-coding-challenge_default:
-          driver: bridge

@@ -1,15 +1,14 @@
 """
 Script to start the suscribe and publish process from mqtt topics
 """
-from src.rw_subscribed_topics import write_raw_data, load_suscribed_topics
+from src.rw_subscribed_topics import write_raw_data, load_subscribed_topics
 
 from src.helpers.helper import \
     DEFAULT_SUBSCRIBED_TOPIC, \
     Broker, \
     DEFAULT_PORT, \
     TIME_ALIVE, \
-    DATA_PATH, \
-    DATA_CARSTATUS_PATH
+    DATA_PATH
 
 
 import logging
@@ -26,8 +25,10 @@ class MQTT(object):
 
     def run(self):
 
-        if not os.path.isdir(DATA_PATH) or not os.path.isdir(DATA_CARSTATUS_PATH):
-            raise Exception
+        path = os.path.isdir(DATA_PATH)
+
+        if not path:
+            raise ValueError('wrong path')
 
         self.client.connect(Broker, DEFAULT_PORT, TIME_ALIVE)
         self.client.on_connect = self.on_connect
@@ -38,12 +39,11 @@ class MQTT(object):
             while rc == 0:
                 time.sleep(0.01)
                 rc = self.client.loop()
-
-                load_suscribed_topics(self.client)
+                load_subscribed_topics(self.client)
                 time.sleep(0.01)
 
-        except Exception as e:
-            logging.warn(e)
+        except ConnectionAbortedError as e:
+            logging.warning(e)
             self.client.disconnect()
             self.client.loop_stop()
 

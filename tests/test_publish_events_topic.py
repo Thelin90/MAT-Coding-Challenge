@@ -24,10 +24,6 @@ class TestPublish_events_topic(TestCase):
         self.mqtt_client.connect = MagicMock()
         self.client_mock.publish = MagicMock()
 
-    def test_publish_events_topic_exception(self):
-        with pytest.raises(Exception):
-            publish_events_topic('', None, Exception)
-
     def test_publish_events_topic_success(self):
         publish_events_topic(
             self.fake_msg,
@@ -49,3 +45,7 @@ class TestPublish_events_topic(TestCase):
         )
 
         self.assertEqual(self.client_mock.publish.call_count, 1)
+
+    def test_publish_events_topic_exception(self):
+        with pytest.raises(Exception):
+            publish_events_topic('', None, Exception)
